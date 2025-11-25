@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Classroom Attendance Tracker</title>
+    <title>Consistency - Attendance Tracker</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main class="app">
       <header class="app__header">
         <div>
-          <h1>3D Attendance Tracker</h1>
+          <h1>Consistency - 3D Attendance Tracker</h1>
           <p>Click desks to toggle status for the selected date.</p>
         </div>
         <label class="date-picker">
@@ -18,6 +18,21 @@
           <input type="date" id="attendance-date" />
         </label>
       </header>
+
+      <section class="stats">
+        <div class="stats__item">
+          <span class="stats__label">Present</span>
+          <span id="count-present" class="stats__value">0</span>
+        </div>
+        <div class="stats__item">
+          <span class="stats__label">Absent</span>
+          <span id="count-absent" class="stats__value">0</span>
+        </div>
+        <div class="stats__item">
+          <span class="stats__label">Total</span>
+          <span id="count-total" class="stats__value">0</span>
+        </div>
+      </section>
 
       <section class="legend">
         <div class="legend__item status-present">Present</div>

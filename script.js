@@ -39,6 +39,9 @@ const STORAGE_PREFIX = "attendance-map::";
 const dateInput = document.getElementById("attendance-date");
 const resetBtn = document.getElementById("reset-btn");
 const exportBtn = document.getElementById("export-btn");
+const countPresentEl = document.getElementById("count-present");
+const countAbsentEl = document.getElementById("count-absent");
+const countTotalEl = document.getElementById("count-total");
 
 let currentDateKey = null;
 let attendanceState = {};
@@ -53,6 +56,7 @@ let hoveredSeatMesh = null;
 let sceneInitialized = false;
 
 const seatRefs = new Map(); // seatId -> { root: Group, colorMeshes: Mesh[] }
+const TOTAL_SEATS = COLUMN_DATA.reduce((sum, column) => sum + column.length, 0);
 
 const todayISO = () => new Date().toISOString().split("T")[0];
 
@@ -79,6 +83,7 @@ const applySeatStatus = (seatId, status) => {
     seatRef.colorMeshes.forEach((mesh) => mesh.material.color.setHex(STATUS_COLORS[status]));
   }
   saveStateForDate();
+  updateCounts();
 };
 
 const createLabelTexture = (text) => {
@@ -316,6 +321,8 @@ const buildDesksAndChairs = () => {
       seatRefs.set(seatId, { root: cluster, colorMeshes });
     });
   });
+
+  updateCounts();
 };
 
 const createChairAndMonitor = (status, rotation, offset, monitorRotation = 0) => {
@@ -459,6 +466,7 @@ const refreshDeskColors = () => {
     const status = attendanceState[seatId] || "unmarked";
     ref.colorMeshes.forEach((mesh) => mesh.material.color.setHex(STATUS_COLORS[status]));
   });
+  updateCounts();
 };
 
 const resetDay = () => {
@@ -483,6 +491,16 @@ const exportCSV = () => {
   a.download = `attendance-${currentDateKey}.csv`;
   a.click();
   URL.revokeObjectURL(url);
+};
+
+const updateCounts = () => {
+  if (!countPresentEl || !countAbsentEl || !countTotalEl) return;
+  const values = Object.values(attendanceState);
+  const present = values.filter((status) => status === "present").length;
+  const absent = values.filter((status) => status === "absent").length;
+  countPresentEl.textContent = present;
+  countAbsentEl.textContent = absent;
+  countTotalEl.textContent = TOTAL_SEATS;
 };
 
 const init = () => {

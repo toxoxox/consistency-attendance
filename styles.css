@@ -57,6 +57,36 @@ body {
   color: #616889;
 }
 
+.stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stats__item {
+  flex: 1 1 140px;
+  background: #f7f8fd;
+  border-radius: 14px;
+  padding: 0.8rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stats__label {
+  font-size: 0.85rem;
+  color: #5f6380;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stats__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
 .date-picker {
   display: flex;
   flex-direction: column;
