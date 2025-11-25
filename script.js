@@ -4,6 +4,7 @@ import {
   CanvasTexture,
   Color,
   Group,
+  HemisphereLight,
   Mesh,
   MeshStandardMaterial,
   PerspectiveCamera,
@@ -14,6 +15,7 @@ import {
   Sprite,
   SpriteMaterial,
   SRGBColorSpace,
+  SpotLight,
   Vector2,
   WebGLRenderer,
 } from "https://unpkg.com/three@0.160.0/build/three.module.js?module";
@@ -120,14 +122,9 @@ const buildScene = () => {
   controls.minDistance = 50;
   controls.maxDistance = 150;
 
-  const ambient = new AmbientLight(0xffffff, 0.6);
-  scene.add(ambient);
-
-  const point = new PointLight(0xffffff, 0.4, 180, 2.5);
-  point.position.set(0, 55, 0);
-  scene.add(point);
-
+  buildLights();
   buildFloor();
+  buildWalls();
   buildTeacherTable();
   buildWhiteboard();
   buildDesksAndChairs();
@@ -143,6 +140,31 @@ const buildScene = () => {
   sceneInitialized = true;
 };
 
+const buildLights = () => {
+  const ambient = new AmbientLight(0xf2f4ff, 0.5);
+  scene.add(ambient);
+
+  const hemi = new HemisphereLight(0xffffff, 0x1a1c24, 0.45);
+  hemi.position.set(0, 50, 0);
+  scene.add(hemi);
+
+  const overhead = new PointLight(0xffffff, 0.5, 250, 2);
+  overhead.position.set(0, 60, 0);
+  scene.add(overhead);
+
+  const teacherSpot = new SpotLight(0xfff2d0, 0.35, 160, Math.PI / 6, 0.4, 1.2);
+  teacherSpot.position.set(-30, 45, -20);
+  teacherSpot.target.position.set(-25, 5, -30);
+  scene.add(teacherSpot);
+  scene.add(teacherSpot.target);
+
+  const centerSpot = new SpotLight(0xbdd9ff, 0.3, 200, Math.PI / 5, 0.3, 1);
+  centerSpot.position.set(0, 40, -10);
+  centerSpot.target.position.set(0, 0, -20);
+  scene.add(centerSpot);
+  scene.add(centerSpot.target);
+};
+
 const buildFloor = () => {
   const floorGeometry = new PlaneGeometry(90, 110);
   const floorMaterial = new MeshStandardMaterial({
@@ -155,6 +177,51 @@ const buildFloor = () => {
   scene.add(floor);
 };
 
+const buildWalls = () => {
+  const wallMaterial = new MeshStandardMaterial({ color: 0xf2f1eb, roughness: 0.9 });
+  const thickness = 1;
+  const height = 16;
+  const width = 90;
+  const depth = 110;
+
+  const backWall = new Mesh(new BoxGeometry(width, height, thickness), wallMaterial);
+  backWall.position.set(0, height / 2, -depth / 2);
+  scene.add(backWall);
+
+  const frontWall = new Mesh(new BoxGeometry(width, height, thickness), wallMaterial);
+  frontWall.position.set(0, height / 2, depth / 2);
+  scene.add(frontWall);
+
+  const sideMaterial = new MeshStandardMaterial({ color: 0xe4e2d6, roughness: 0.85 });
+  const sideGeo = new BoxGeometry(thickness, height, depth);
+  const leftWall = new Mesh(sideGeo, sideMaterial);
+  leftWall.position.set(-width / 2, height / 2, 0);
+  scene.add(leftWall);
+
+  const rightWall = leftWall.clone();
+  rightWall.position.set(width / 2, height / 2, 0);
+  scene.add(rightWall);
+  addDoorAt({ x: width / 2 - 0.3, y: 6, z: 35 }, { x: 0, y: -Math.PI / 2, z: 0 });
+
+  const trimMaterial = new MeshStandardMaterial({ color: 0xd0cab8, roughness: 0.75 });
+  const trim = new Mesh(new BoxGeometry(width + 4, 0.6, thickness + 4), trimMaterial);
+  trim.position.set(0, 0.3, -depth / 2 + 0.5);
+  scene.add(trim);
+};
+
+const addDoorAt = (position, rotation) => {
+  const doorMaterial = new MeshStandardMaterial({ color: 0xc9c2ad, roughness: 0.6 });
+  const door = new Mesh(new BoxGeometry(10, 12, 0.6), doorMaterial);
+  door.position.set(position.x, position.y, position.z);
+  door.rotation.set(rotation.x, rotation.y, rotation.z);
+  scene.add(door);
+
+  const frameMaterial = new MeshStandardMaterial({ color: 0xa89566, roughness: 0.5 });
+  const frame = new Mesh(new BoxGeometry(10.5, 12.5, 0.8), frameMaterial);
+  frame.position.copy(door.position);
+  frame.rotation.copy(door.rotation);
+  scene.add(frame);
+};
 const buildWhiteboard = () => {
   const boardGeometry = new BoxGeometry(36, 12, 0.5);
   const boardMaterial = new MeshStandardMaterial({
@@ -208,16 +275,16 @@ const buildTeacherTable = () => {
 
 const buildDesksAndChairs = () => {
   seatRefs.clear();
-  const columnX = [-30, -8, 8, 30];
+  const columnX = [-30, -4, 4, 30];
   const seatSpacing = 8;
 
   COLUMN_DATA.forEach((students, colIdx) => {
     const x = columnX[colIdx];
     const tableLength = students.length * seatSpacing + 4;
     const tableMaterial = new MeshStandardMaterial({ color: 0x6b4a2c, roughness: 0.4 });
-    const table = new Mesh(new BoxGeometry(12, 1.2, tableLength), tableMaterial);
-    const tableX = colIdx === 1 ? -6 : colIdx === 2 ? 6 : x;
-    table.position.set(tableX, 3, 0);
+    const deskWidth = 12 * 0.5;
+    const table = new Mesh(new BoxGeometry(deskWidth, 1.2, tableLength), tableMaterial);
+    table.position.set(x, 3, 0);
     scene.add(table);
 
     const startZ = -((students.length - 1) * seatSpacing) / 2;
@@ -230,8 +297,9 @@ const buildDesksAndChairs = () => {
       cluster.position.set(x, 0, z);
       cluster.userData = { seatId, student };
 
-      const rotation = colIdx < 2 ? -Math.PI / 2 : Math.PI / 2;
-      const offset = colIdx < 2 ? -4 : 4;
+      const rotation =
+        colIdx === 0 ? Math.PI / 2 : colIdx === 3 ? -Math.PI / 2 : colIdx < 2 ? -Math.PI / 2 : Math.PI / 2;
+      const offset = colIdx === 0 ? 4 : colIdx === 3 ? -4 : colIdx < 2 ? -4 : 4;
       const monitorFlip = Math.PI; // flip screens toward chairs
       const { chairGroup, colorMeshes } = createChairAndMonitor(status, rotation, offset, monitorFlip);
       cluster.add(chairGroup);
@@ -290,7 +358,7 @@ const createChairAndMonitor = (status, rotation, offset, monitorRotation = 0) =>
     new BoxGeometry(3.2, 2.2, 0.3),
     new MeshStandardMaterial({ color: 0xdcd6f7, emissive: 0x5f6ac4, emissiveIntensity: 0.25 })
   );
-  monitor.position.set(0, 5, -3.2);
+  monitor.position.set(0, 5, -2.5);
   monitor.rotation.y = monitorRotation;
   chairGroup.add(monitor);
 
