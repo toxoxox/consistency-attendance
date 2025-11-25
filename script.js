@@ -166,7 +166,7 @@ const buildLights = () => {
 };
 
 const buildFloor = () => {
-  const floorGeometry = new PlaneGeometry(90, 110);
+  const floorGeometry = new PlaneGeometry(70, 110);
   const floorMaterial = new MeshStandardMaterial({
     color: 0x4a4d57,
     roughness: 0.85,
@@ -181,7 +181,7 @@ const buildWalls = () => {
   const wallMaterial = new MeshStandardMaterial({ color: 0xf2f1eb, roughness: 0.9 });
   const thickness = 1;
   const height = 16;
-  const width = 90;
+  const width = 70;
   const depth = 110;
 
   const backWall = new Mesh(new BoxGeometry(width, height, thickness), wallMaterial);
