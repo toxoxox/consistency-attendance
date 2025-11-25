@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Classroom Attendance Tracker</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <div>
+          <h1>3D Attendance Tracker</h1>
+          <p>Click desks to toggle status for the selected date.</p>
+        </div>
+        <label class="date-picker">
+          <span>Date</span>
+          <input type="date" id="attendance-date" />
+        </label>
+      </header>
+
+      <section class="legend">
+        <div class="legend__item status-present">Present</div>
+        <div class="legend__item status-absent">Absent</div>
+        <div class="legend__item status-unmarked">Unmarked</div>
+      </section>
+
+      <section class="canvas-wrapper">
+        <canvas id="scene"></canvas>
+      </section>
+
+      <footer class="app__footer">
+        <button id="reset-btn" type="button">Reset Day</button>
+        <button id="export-btn" type="button">Export CSV</button>
+      </footer>
+    </main>
+
+    <script src="script.js" type="module"></script>
+  </body>
+</html>
+
